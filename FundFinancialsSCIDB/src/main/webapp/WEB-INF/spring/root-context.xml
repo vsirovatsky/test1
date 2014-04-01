@@ -7,8 +7,8 @@
 	
 	<context:annotation-config/>
 	
-	<bean name="dataProvider" class="com.allrounds.pcms.dao.JdbcDataProvider"/>
-	<!-- <bean name="dataProvider" class="com.allrounds.pcms.dao.MockUpDataProvider"/> -->
+	<!-- <bean name="dataProvider" class="com.allrounds.pcms.dao.JdbcDataProvider"/> -->
+	<bean name="dataProvider" class="com.allrounds.pcms.dao.MockUpDataProvider"/>
 	
 	<bean name="fundFinancialsFactory" class="com.allrounds.pcms.service.financialscreation.FundFinancialsFactory"/>
 	
