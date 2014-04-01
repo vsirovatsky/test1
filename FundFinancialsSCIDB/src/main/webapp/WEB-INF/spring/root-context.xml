@@ -1,9 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
 	
-	<!-- Root Context: defines shared resources visible to all other web components -->
-	<bean name="dataProvider" class="com.allrounds.pcms.dao.MockUpDataProvider"/>
+	<context:annotation-config/>
+	
+	<bean name="dataProvider" class="com.allrounds.pcms.dao.JdbcDataProvider"/>
+	<!-- <bean name="dataProvider" class="com.allrounds.pcms.dao.MockUpDataProvider"/> -->
+	
+	<bean name="fundFinancialsFactory" class="com.allrounds.pcms.service.financialscreation.FundFinancialsFactory"/>
+	
+	<bean name="valuesFilterFactory" class="com.allrounds.pcms.service.support.SimpleNonZeroFiltersFactory"/>
+	
+	<!-- <bean id="dataSource"
+		class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+		<property name="driverClassName"
+		value="org.scidb.jdbc.Driver" />
+		<property name="url" value="jdbc:scidb://localhost/" />
+		<property name="username" value="scidb" />
+		<property name="password" value="paradigm4" />
+	</bean> -->
 	
 </beans>

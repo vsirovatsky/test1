@@ -8,7 +8,7 @@ import com.allrounds.pcms.domain.JournalEntryItem;
 import com.allrounds.pcms.domain.RegisteredInvestor;
 
 public interface IDataProvider {
-
+	
 	public List<RegisteredInvestor> getAllInvestors();
 	
 	public List<ChartOfAccount> getAllCharts();

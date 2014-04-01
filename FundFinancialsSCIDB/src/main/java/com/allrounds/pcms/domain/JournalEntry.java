@@ -4,15 +4,15 @@ import java.util.Date;
 
 public class JournalEntry {
 	
-	private int id;
+	private String id;
 
 	private String name;
 	
-	private Date date;
+	private int date;
 	
 	public JournalEntry() {super();}
 
-	public JournalEntry(int id, String name, Date date) {
+	public JournalEntry(String id, String name, int date) {
 		super();
 		this.id = id;
 		this.name = name;
@@ -27,19 +27,19 @@ public class JournalEntry {
 		this.name = name;
 	}
 
-	public Date getDate() {
+	public int getDate() {
 		return date;
 	}
 
-	public void setDate(Date date) {
+	public void setDate(int date) {
 		this.date = date;
 	}
 
-	public int getId() {
+	public String getId() {
 		return id;
 	}
 
-	public void setId(int id) {
+	public void setId(String id) {
 		this.id = id;
 	}
 }

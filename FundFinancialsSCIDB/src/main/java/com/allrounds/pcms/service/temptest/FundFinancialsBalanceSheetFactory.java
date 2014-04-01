@@ -1,8 +1,9 @@
-package com.allrounds.pcms.service;
+package com.allrounds.pcms.service.temptest;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.allrounds.pcms.dao.IDataProvider;
+import com.allrounds.pcms.dao.TestConnection;
 
 public class FundFinancialsBalanceSheetFactory {
 
@@ -14,7 +15,10 @@ public class FundFinancialsBalanceSheetFactory {
 	private FundFinancialsBalanceSheetFactory(){}
 	
 	public IFundFinancialsBalanceSheet generate() {
-		return new FundFinancialsBalanceSheet();
+		FundFinancialsBalanceSheet bs = new FundFinancialsBalanceSheet();
+		TestConnection tc = new TestConnection();
+		bs.setMessages( tc.getTestInformationAQL() );
+		return bs;
 	}
 
 	@Override
