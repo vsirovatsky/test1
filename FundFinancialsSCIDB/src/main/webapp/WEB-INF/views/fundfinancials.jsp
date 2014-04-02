@@ -3,7 +3,11 @@
 <%@ page session="false" %>
 <html>
 <head>
-	<title>Fund Financials</title>
+	<title>Fund Financials</title>	
+	<script src="<c:url value="/resources/js/jquery-1.7.2.js" />" ></script>
+	<script src="<c:url value="/resources/js/underscore.js" />" ></script>
+	<script src="<c:url value="/resources/js/backbone.js" />" ></script>
+	<script src="<c:url value="/resources/js/main.js" />" ></script>
 </head>
 <body>
 <h1>
@@ -25,6 +29,45 @@ time: ${runningtime}
 </td></tr>
 </table>
 </form> -->
+
+
+
+
+
+<script id="control_panel" type="text/template">
+		<INPUT TYPE="text" value="Time from" />
+		<INPUT TYPE="text" value="Time Till" />	
+		<INPUT TYPE="button" value="Show" class="show" />		
+</script>
+
+
+
+
+
+
+
+
+<div id="mainDiv"></div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 <br/>
@@ -102,4 +145,13 @@ time: ${runningtime}
 </table>
 
 </body>
+
+<script>
+(function(){
+
+App.initialize();
+})();
+
+</script>
+
 </html>
