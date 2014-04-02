@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -71,35 +72,50 @@ public class FundFinancialsFactory implements IFundFinancialsFactory {
 	private FundFinancialsBalance createFundFinancialsBalance( final List<JournalEntryItem> items ) throws CategoryNotFoundPcmsServiceException{
 		final FundFinancialsBalance ffb = new FundFinancialsBalance();
 		ffb.setValueFiltersFactory(this.valuesFilterFactory);
-		ffb.totalCount = items.size();
 		
-		final HashMap<String, FundFinancialsBalance.ValuePair> valuesAssets = new HashMap<String, FundFinancialsBalance.ValuePair>();
-		final HashMap<String, FundFinancialsBalance.ValuePair> valuesLiabilities = new HashMap<String, FundFinancialsBalance.ValuePair>();
-		final HashMap<String, FundFinancialsBalance.ValuePair> valuesEquities = new HashMap<String, FundFinancialsBalance.ValuePair>();
+		final TreeMap<String, HashMap<String, FundFinancialsBalance.ValuePair>> valuesAssets = new TreeMap<String, HashMap<String, FundFinancialsBalance.ValuePair>>();
+		final TreeMap<String, HashMap<String, FundFinancialsBalance.ValuePair>> valuesLiabilities = new TreeMap<String, HashMap<String, FundFinancialsBalance.ValuePair>>();
+		final TreeMap<String, HashMap<String, FundFinancialsBalance.ValuePair>> valuesEquities = new TreeMap<String, HashMap<String, FundFinancialsBalance.ValuePair>>();
 		for ( JournalEntryItem jei : items ) {
-			FundFinancialsBalance.ValuePair p = null;
+			HashMap<String, FundFinancialsBalance.ValuePair> subMap;
+			FundFinancialsBalance.ValuePair p;
 			switch (jei.getCategory()) {
 				case ASSET:
-					p = valuesAssets.get(jei.getChartofaccounts());
+					subMap = valuesAssets.get(jei.getChartcategory());
+					if ( subMap == null ) {
+						subMap = new HashMap<String, FundFinancialsBalance.ValuePair>();
+						valuesAssets.put(jei.getChartcategory(), subMap);
+					}
+					p = subMap.get(jei.getChartofaccounts());
 					if ( p == null ) {
 						p = ffb.new ValuePair( jei.getChartofaccounts() );
-						valuesAssets.put( jei.getChartofaccounts(), p );
+						subMap.put( jei.getChartofaccounts(), p );
 					}
 					p.addValue( jei.getDebit() - jei.getCredit() );
 					break;
 				case LIABILITY:
-					p = valuesLiabilities.get(jei.getChartofaccounts());
+					subMap = valuesLiabilities.get(jei.getChartofaccounts());
+					if ( subMap == null ) {
+						subMap = new HashMap<String, FundFinancialsBalance.ValuePair>();
+						valuesLiabilities.put(jei.getChartcategory(), subMap);
+					}
+					p = subMap.get(jei.getChartofaccounts());
 					if ( p == null ) {
 						p = ffb.new ValuePair( jei.getChartofaccounts() );
-						valuesLiabilities.put( jei.getChartofaccounts(), p );
+						subMap.put( jei.getChartofaccounts(), p );
 					}
 					p.addValue( jei.getCredit() - jei.getDebit() );
 					break;
 				case EQUITY:
-					p = valuesEquities.get(jei.getChartofaccounts());
+					subMap = valuesEquities.get(jei.getChartofaccounts());
+					if ( subMap == null ) {
+						subMap = new HashMap<String, FundFinancialsBalance.ValuePair>();
+						valuesEquities.put(jei.getChartcategory(), subMap);
+					}
+					p = subMap.get(jei.getChartofaccounts());
 					if ( p == null ) {
 						p = ffb.new ValuePair( jei.getChartofaccounts() );
-						valuesEquities.put( jei.getChartofaccounts(), p );
+						subMap.put( jei.getChartofaccounts(), p );
 					}
 					p.addValue( jei.getCredit() - jei.getDebit() );
 					break;
@@ -108,13 +124,62 @@ public class FundFinancialsFactory implements IFundFinancialsFactory {
 			}
 		}
 		
-		ffb.assetsCount = valuesAssets.size();
-		ffb.liabilitiesCount = valuesLiabilities.size();
-		ffb.equitiesCount = valuesLiabilities.size();
+		final List<FundFinancialsBalance.ValuePair> values = new ArrayList<FundFinancialsBalance.ValuePair>();
 		
-		ffb.setValuesAssets(valuesAssets.values());
-		ffb.setValuesLiabilities(valuesLiabilities.values());
-		ffb.setValuesEquities(valuesLiabilities.values());
+		values.add( ffb.new ValuePair("Assets", false, true) );
+		final FundFinancialsBalance.ValuePair totalAssets = ffb.new ValuePair("Total Assets", true, true);
+		if ( !valuesAssets.isEmpty() ) {
+			for ( String key : valuesAssets.keySet() ) {
+				values.add( ffb.new ValuePair(key+":", false, false) );
+				List<FundFinancialsBalance.ValuePair> localvalues = new ArrayList<FundFinancialsBalance.ValuePair>( valuesAssets.get( key ).values() );
+				Collections.sort( localvalues );
+				values.addAll( localvalues );
+				for ( FundFinancialsBalance.ValuePair p : localvalues ) {
+					totalAssets.addValue( p.getValue() );
+				}
+			}
+		}
+		values.add( totalAssets );
+		values.add( ffb.new ValuePair("", false, false) );
+
+		values.add( ffb.new ValuePair("Liabilities", false, true) );
+		final FundFinancialsBalance.ValuePair totalLiabilities = ffb.new ValuePair("Total Liabilities", true, true);
+		if ( !valuesLiabilities.isEmpty() ) {
+			for ( String key : valuesLiabilities.keySet() ) {
+				values.add( ffb.new ValuePair(key+":", false, false) );
+				List<FundFinancialsBalance.ValuePair> localvalues = new ArrayList<FundFinancialsBalance.ValuePair>( valuesLiabilities.get( key ).values() );
+				Collections.sort( localvalues );
+				values.addAll( localvalues );
+				for ( FundFinancialsBalance.ValuePair p : localvalues ) {
+					totalLiabilities.addValue( p.getValue() );
+				}
+			}
+		}
+		values.add( totalLiabilities );
+		values.add( ffb.new ValuePair("", false, false) );
+		
+		values.add( ffb.new ValuePair("Equity", false, true) );
+		final FundFinancialsBalance.ValuePair totalEquities = ffb.new ValuePair("Total Equity", true, true);
+		if ( !valuesEquities.isEmpty() ) {
+			for ( String key : valuesEquities.keySet() ) {
+				values.add( ffb.new ValuePair(key+":", false, false) );
+				List<FundFinancialsBalance.ValuePair> localvalues = new ArrayList<FundFinancialsBalance.ValuePair>( valuesEquities.get( key ).values() );
+				Collections.sort( localvalues );
+				values.addAll( localvalues );
+				for ( FundFinancialsBalance.ValuePair p : localvalues ) {
+					totalEquities.addValue( p.getValue() );
+				}
+			}
+		}
+		values.add( totalEquities );
+		values.add( ffb.new ValuePair("", false, false) );
+		
+		final FundFinancialsBalance.ValuePair totalLiabilitiesEquities = ffb.new ValuePair("Total Liabilities and Equities", true, true);
+		totalLiabilitiesEquities.addValue( totalLiabilities.getValue() );
+		totalLiabilitiesEquities.addValue( totalEquities.getValue() );
+		values.add( totalLiabilitiesEquities );
+		
+		ffb.setValues( values );
 		
 		return ffb;
 	}

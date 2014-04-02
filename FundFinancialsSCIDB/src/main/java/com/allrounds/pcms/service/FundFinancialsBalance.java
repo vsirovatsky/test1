@@ -12,8 +12,14 @@ public class FundFinancialsBalance {
 		private String chart;
 		private double value = 0;
 		private boolean isShowValue = true;
+		private boolean isBold = true;
 		public ValuePair(String chartofaccounts) {
 			this.chart = chartofaccounts;
+		}
+		public ValuePair(String chartofaccounts, boolean isShowValue, boolean isBold) {
+			this.chart = chartofaccounts;
+			this.isShowValue = isShowValue;
+			this.setBold(isBold);
 		}
 		public String getChart() {
 			return chart;
@@ -39,30 +45,14 @@ public class FundFinancialsBalance {
 		}
 		@Override
 		public boolean isImportant() {
-			return !isShowValue;
+			return !isShowValue || isBold;
 		}
-	}
-	
-	public int totalCount;
-	public int assetsCount;
-	public int liabilitiesCount;
-	public int equitiesCount;
-	
-	
-	public int getTotalCount(){
-		return this.totalCount;
-	}
-	
-	public int getAssetsCount() {
-		return assetsCount;
-	}
-
-	public int getLiabilitiesCount() {
-		return liabilitiesCount;
-	}
-
-	public int getEquitiesCount() {
-		return equitiesCount;
+		public boolean isBold() {
+			return isBold;
+		}
+		public void setBold(boolean isBold) {
+			this.isBold = isBold;
+		}
 	}
 	
 	private IValueFiltersFactory valuesFilterFactory;
@@ -70,37 +60,14 @@ public class FundFinancialsBalance {
 		this.valuesFilterFactory = valuesFilterFactory;
 	}
 
-	private Collection<ValuePair> valuesAssets = new ArrayList<ValuePair>();
-	private Collection<ValuePair> valuesLiabilities = new ArrayList<ValuePair>();
-	private Collection<ValuePair> valuesEquities = new ArrayList<ValuePair>();
+	private Collection<ValuePair> values = new ArrayList<ValuePair>();
 	
 	public FundFinancialsBalance(){}
 	
-	public Collection<ValuePair> getValuesAssets() {
-		return this.valuesFilterFactory.getBalanceFilter().filterValues( this.valuesAssets );
+	public Collection<ValuePair> getValues() {
+		return this.valuesFilterFactory.getBalanceFilter().filterValues( this.values );
 	}
-	public void setValuesAssets(Collection<ValuePair> valuesAssets) {
-		this.valuesAssets.addAll(valuesAssets);
-	}
-	public Collection<ValuePair> getValuesEquities() {
-		return this.valuesFilterFactory.getBalanceFilter().filterValues( valuesEquities );
-	}
-	public void setValuesEquities(Collection<ValuePair> valuesEquities) {
-		this.valuesEquities.addAll(valuesEquities);
-	}
-	public Collection<ValuePair> getValuesLiabilities() {
-		return this.valuesFilterFactory.getBalanceFilter().filterValues( valuesLiabilities );
-	}
-	public void setValuesLiabilities(Collection<ValuePair> valuesLiabilities) {
-		this.valuesLiabilities.addAll(valuesLiabilities);
-	}
-	public int getAssetsSize(){
-		return this.valuesAssets.size();
-	}
-	public int getLiabilitiesSize(){
-		return this.valuesLiabilities.size();
-	}
-	public int getEquitiesSize(){
-		return this.valuesEquities.size();
+	public void setValues(Collection<ValuePair> values) {
+		this.values = values;
 	}
 }
