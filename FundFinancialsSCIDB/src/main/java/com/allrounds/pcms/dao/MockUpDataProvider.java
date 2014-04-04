@@ -1,5 +1,6 @@
 package com.allrounds.pcms.dao;
 
+import java.sql.Date;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -7,6 +8,7 @@ import com.allrounds.pcms.domain.ChartOfAccount;
 import com.allrounds.pcms.domain.JournalEntry;
 import com.allrounds.pcms.domain.JournalEntryItem;
 import com.allrounds.pcms.domain.RegisteredInvestor;
+import com.allrounds.pcms.utils.DateUtils;
 
 public class MockUpDataProvider implements IDataProvider {
 	
@@ -104,6 +106,22 @@ public class MockUpDataProvider implements IDataProvider {
 	@Override
 	public List<JournalEntryItem> getAllItems() {
 		return this.items;
+	}
+
+	@Override
+	public List<JournalEntryItem> getAllItems(DAOParams params) {
+		if ( (params==null) || (params.getStartDate() == null) || (params.getEndDate()==null) ) {
+			return getAllItems();
+		}
+		final List<JournalEntryItem> result = new ArrayList<JournalEntryItem>();
+		int startDate = DateUtils.convertToInt(params.getStartDate(), Date.valueOf("2000-01-01"));
+		int endDate = DateUtils.convertToInt(params.getEndDate(), Date.valueOf("2000-01-01"));
+		for ( JournalEntryItem item : this.items ) {
+			if ( (item.getDate() >= startDate) && (item.getDate() <= endDate) ) {
+				result.add( item );
+			}
+		}
+		return result;
 	}
 
 }

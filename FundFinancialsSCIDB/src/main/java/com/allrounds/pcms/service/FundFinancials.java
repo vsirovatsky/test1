@@ -1,6 +1,10 @@
 package com.allrounds.pcms.service;
 
-public class FundFinancials {
+import java.io.Serializable;
+
+public class FundFinancials implements Serializable {
+	
+	private static final long serialVersionUID = 1895517266949432699L;
 	
 	private FundFinancialsBalance balance;
 	private FundFinancialsStatements statements;

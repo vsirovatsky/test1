@@ -88,4 +88,10 @@ public class JdbcDataProvider implements IDataProvider {
 		this.jeis = newJeis;
 	}
 
+	@Override
+	public List<JournalEntryItem> getAllItems(DAOParams params) {
+		// TODO implement usage of dates
+		return getAllItems();
+	}
+
 }
