@@ -1,0 +1,132 @@
+@CHARSET "UTF-8";
+
+body {
+	background: #B6BBD6;
+}
+
+.tabs {
+    width:100%;
+    display:inline-block;
+    
+}
+ 
+    /*----- Tab Links -----*/
+    /* Clearfix */
+    .tab-links:after {
+        display:block;
+        clear:both;
+        content:'';
+        
+    }
+    .tab-links {
+        margin-bottom: 0px;
+    }
+ 
+    .tab-links li {
+        margin:0px 5px;
+        float:left;
+        list-style:none;
+    }
+ 
+        .tab-links span {
+            padding:9px 15px;
+            display:inline-block;
+            border-radius:3px 3px 0px 0px;
+            background:#dbdbdb;;
+            color:#FFF;
+            
+            font-size:16px;
+            font-weight:600;
+            
+            transition:all linear 0.15s;
+            
+            cursor: pointer;
+        }
+ 
+        .tab-links span:hover {
+            background:#a7cce5;
+            text-decoration:none;
+        }
+ 
+    li.active span, li.active span:hover {
+        background:0a5577;
+        color:#FFF;
+        border-bottom: 1px solid #749EB1
+    }
+    
+    /* Balance Table CSS*/
+    
+    
+    
+.data_table {
+	margin:0px;padding:0px;
+	width:800px;
+	box-shadow: 10px 10px 5px #888888;
+	border: 1px solid #0a5577;	
+	background-color:#dbdbdb;
+	border-spacing: 0px;
+	
+}
+
+.data_table table{
+    border-collapse: collapse;
+    border-spacing: 0;
+	width:800px;
+	height:100%;
+	margin:0px;padding:0px;
+	background-color:#dbdbdb;
+}
+
+
+
+.data_table td{
+	vertical-align:middle;
+		
+	text-align:left;
+	padding:7px;
+	font-size:14px;
+	font-family:Arial;
+	font-weight:normal;
+	color:#000000;
+}
+
+.data_table td:last-child{
+		text-align:center;
+	}
+
+.data_table td{
+        height: 24px;
+    }
+
+.data_table thead th{
+		
+
+	background-color:#0a5577;
+    
+    height: 24px;
+	
+	border:0px solid #000000;
+	text-align:center;
+	border-width:0px 0px 1px 1px;
+	font-size:14px;
+	font-family:Arial;
+	font-weight:bold;
+	color:#ffffff;
+}
+
+.balance_table thead th:first-child{
+    text-align:left;
+    padding-left: 30px;
+}
+
+.data_table tr.bold_row td{
+       font-weight: bold;
+    }
+
+
+
+
+
+    
+ 
+        

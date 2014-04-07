@@ -4,19 +4,66 @@
 <html>
 <head>
 	<title>Fund Financials</title>	
-	<script src="<c:url value="/resources/js/jquery-1.7.2.js" />" ></script>
+	<link rel="stylesheet" href="<c:url value="/resources/css/dark-hive/jquery-ui-1.10.4.custom.css"/>" />
+	<link rel="stylesheet" href="<c:url value="/resources/css/styles.css"/>" />
+	<script src="<c:url value="/resources/js/jquery-1.10.2.js" />" ></script>
+	<script src="<c:url value="/resources/js/jquery-ui-1.10.4.custom.js" />" ></script>
 	<script src="<c:url value="/resources/js/underscore.js" />" ></script>
 	<script src="<c:url value="/resources/js/backbone.js" />" ></script>
 	<script src="<c:url value="/resources/js/main.js" />" ></script>
+	
+	<script id="control_panel" type="text/template">
+		<div id="control_panel_div">
+			<p><input type="text" id="datepicker_from"></p>		
+			<p><input type="text" id="datepicker_till"></p>	
+			<INPUT TYPE="button" value="Show" class="show" />
+		<div>		
+	</script>	
+	
+	<script id="tab_panel" type="text/template">
+		<div id="tab_panel_div" class="tabs">			
+		<ul class="tab-links">
+			<li class="balance tab"><span>Balance</span></li>
+			<li class="cash_flow tab"><span>Cash Flow</span></li>
+			<li class="partner_capital tab"><span>Partner Capital</span></li>
+			<li class="statements tab"><span>Statements</span></li>
+		</ul>
+		</div>
+				
+	</script>	
+	
+	
+	<script></script>
+	
 </head>
+
+
 <body>
-<h1>
-	Fund Financials 
-</h1>
-time: ${runningtime}
-<c:forEach items="${messages}" var="m">
-	${m}<br/>
-</c:forEach>
+
+<div id=controlPanelDiv></div>
+
+<div id="tabDiv"></div>
+
+<div id="tableDiv"></div>
+
+<script>
+(function(){
+	
+	
+})();	
+
+jQuery(document).ready(function($){
+		App.Urls.baseUrl = 'http://localhost:8080'+'${pageContext.request.contextPath}';	
+		App.initialize();
+	   $("#datepicker_from").datepicker();
+	   $("#datepicker_till").datepicker();
+	   $('.tabs .tab-links span').on('click', function(e)  {	        
+	        $(this).parent('li').addClass('active').siblings().removeClass('active');	 
+	        //e.preventDefault();
+	    });
+	});
+
+</script>
 
 <!-- <form method="post">
 <table>
@@ -34,37 +81,13 @@ time: ${runningtime}
 
 
 
-<script id="control_panel" type="text/template">
-		<INPUT TYPE="text" value="Time from" />
-		<INPUT TYPE="text" value="Time Till" />	
-		<INPUT TYPE="button" value="Show" class="show" />		
-</script>
-
-
-
-
-
-
-
-
-<div id="mainDiv"></div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+<%-- <h1>
+	Fund Financials 
+</h1>
+time: ${runningtime}
+<c:forEach items="${messages}" var="m">
+	${m}<br/>
+</c:forEach>
 
 
 
@@ -75,7 +98,7 @@ time: ${runningtime}
 <br/>
 <table>
 <tr>
-<td>ASSETS: ${ff.balance.assetsSize}<td>
+ <td>ASSETS: ${ff.balance.assetsSize}<td> 
 </tr>
 <c:forEach items="${ff.balance.valuesAssets}" var="asset">
 	<tr>
@@ -142,16 +165,10 @@ time: ${runningtime}
 		<td><fmt:formatNumber value="${val.value}" type="number" maxFractionDigits="0"/></td>
 	</tr>
 	</c:forEach>
-</table>
+</table> --%>
 
 </body>
 
-<script>
-(function(){
 
-App.initialize();
-})();
-
-</script>
 
 </html>
