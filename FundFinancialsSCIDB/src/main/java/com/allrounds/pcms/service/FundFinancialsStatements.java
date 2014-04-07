@@ -1,12 +1,15 @@
 package com.allrounds.pcms.service;
 
+import java.io.Serializable;
 import java.util.Collection;
 
 import com.allrounds.pcms.service.support.IValueFilterable;
 import com.allrounds.pcms.service.support.IValueFiltersFactory;
 
-public class FundFinancialsStatements {
+public class FundFinancialsStatements implements Serializable {
 	
+	private static final long serialVersionUID = 1099032640950196757L;
+
 	public class ValuePair implements IValueFilterable, Comparable<ValuePair> {
 		private String chart;
 		private double value = 0;

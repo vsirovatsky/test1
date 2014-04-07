@@ -10,6 +10,7 @@ import java.util.TreeMap;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.allrounds.pcms.dao.DAOParams;
 import com.allrounds.pcms.dao.IDataProvider;
 import com.allrounds.pcms.domain.JournalEntryItem;
 import com.allrounds.pcms.domain.JournalEntryItem.CATEGORY;
@@ -43,7 +44,11 @@ public class FundFinancialsFactory implements IFundFinancialsFactory {
 	public FundFinancials createFundFinancials( FundFinancialsParameters params ) throws PcmsServiceException {
 		final FundFinancials ff = new FundFinancials();
 		
-		final List<JournalEntryItem> items = getDataProvider().getAllItems();
+		DAOParams daoParams = new DAOParams();
+		daoParams.setFundId("default");
+		daoParams.setStartDate( params.getStartDate() );
+		daoParams.setEndDate( params.getEndDate() );
+		final List<JournalEntryItem> items = getDataProvider().getAllItems( daoParams  );
 		
 		switch ( params.getMode() ) {
 		case BALANCE:

@@ -2,7 +2,6 @@ package com.allrounds.pcms.dao;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
@@ -10,12 +9,9 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.sql.DataSource;
 
 import org.scidb.jdbc.IResultSetWrapper;
 import org.scidb.jdbc.IStatementWrapper;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.PreparedStatementCreatorFactory;
 
 public class TestConnection {
 

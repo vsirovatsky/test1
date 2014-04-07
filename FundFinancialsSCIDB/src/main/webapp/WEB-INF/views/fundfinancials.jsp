@@ -97,31 +97,17 @@ time: ${runningtime}
 <H1>Balance:</H1>
 <br/>
 <table>
+<<<<<<< HEAD
 <tr>
  <td>ASSETS: ${ff.balance.assetsSize}<td> 
 </tr>
 <c:forEach items="${ff.balance.valuesAssets}" var="asset">
+=======
+<c:forEach items="${ff.balance.values}" var="rec">
+>>>>>>> refs/remotes/origin/newOne
 	<tr>
-		<td>${asset.chart}</td>
-		<td><fmt:formatNumber value="${asset.value}" type="number" maxFractionDigits="0"/></td>
-	</tr>
-</c:forEach>
-<tr>
-<td>LIABILITIES: ${ff.balance.liabilitiesSize}<td>
-</tr>
-<c:forEach items="${ff.balance.valuesLiabilities}" var="liability">
-	<tr>
-		<td>${liability.chart}</td>
-		<td><fmt:formatNumber value="${liability.value}" type="number" maxFractionDigits="0"/></td>
-	</tr>
-</c:forEach>
-<tr>
-<td>EQUITIES: ${ff.balance.equitiesSize}<td>
-</tr>
-<c:forEach items="${ff.balance.valuesEquities}" var="equity">
-	<tr>
-		<td>${equity.chart}</td>
-		<td><fmt:formatNumber value="${equity.value}" type="number" maxFractionDigits="0"/></td>
+		<td>${rec.chart}</td>
+		<td><fmt:formatNumber value="${rec.value}" type="number" maxFractionDigits="0"/></td>
 	</tr>
 </c:forEach>
 </table>

@@ -17,4 +17,5 @@ public interface IDataProvider {
 	
 	public List<JournalEntryItem> getAllItems();
 	
+	public List<JournalEntryItem> getAllItems(DAOParams params);
 }
