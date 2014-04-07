@@ -3,7 +3,9 @@ package com.allrounds.pcms.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.allrounds.pcms.service.FundFinancials;
@@ -18,9 +20,20 @@ public class FundFinancialsRESTController {
 	@Autowired
 	private IFundFinancialsFactory fundFinancialsFactory;
 
-	@RequestMapping("financials/full")
+	@RequestMapping(value = "financials/full", method = RequestMethod.GET)
 	@ResponseBody
 	public FundFinancials getRestMembers(Model model) {
+		try {
+			return this.fundFinancialsFactory.createFundFinancials( new FundFinancialsParameters() );
+		} catch (PcmsServiceException e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+	
+	@RequestMapping(value = "financials/dates", method = RequestMethod.GET)
+	@ResponseBody
+	public FundFinancials getRestMembersForDates(Model model, @PathVariable("startdate") String startDate,  @PathVariable("enddate") String endDate) {
 		try {
 			return this.fundFinancialsFactory.createFundFinancials( new FundFinancialsParameters() );
 		} catch (PcmsServiceException e) {
