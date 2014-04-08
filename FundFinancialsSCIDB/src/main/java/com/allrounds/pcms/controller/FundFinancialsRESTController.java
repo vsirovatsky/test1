@@ -33,7 +33,7 @@ public class FundFinancialsRESTController {
 		}
 	}
 	
-	@RequestMapping(value = "financials/dates", method = RequestMethod.GET)
+	@RequestMapping(value = "financials/dates/{startdate}/{enddate}", method = RequestMethod.GET)
 	@ResponseBody
 	public FundFinancials getRestMembersForDates(Model model, @PathVariable("startdate") String startDate,  @PathVariable("enddate") String endDate) {
 		try {
