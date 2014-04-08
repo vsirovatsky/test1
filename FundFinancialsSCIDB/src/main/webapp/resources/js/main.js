@@ -10,12 +10,42 @@
 			TempData: {},
 			EventHandler: {},
 			CurrentTableView: {},
+			initData: function(rest_url){
+				$.ajax({
+			         url: App.Urls.baseUrl+ '/api/' + rest_url,
+			         success: function(data) {
+			        	 	App.Data = data;
+							App.TempData.balanceModelsArray = [];
+							_.each(App.Data.balance.values, function(element){
+								App.TempData.balanceModelsArray.push(new App.Models.Balance(element));
+							});
+							App.TempData.cashFlowModelsArray = [];
+							_.each(App.Data.cashFlow.values, function(element){
+								App.TempData.cashFlowModelsArray.push(new App.Models.CashFlow(element));
+							});
+							App.TempData.partnerCapitalModelsArray = [];
+							_.each(App.Data.partnerCapital.values, function(element){
+								App.TempData.partnerCapitalModelsArray.push(new App.Models.PartnerCapital(element));
+							});
+							App.TempData.statementsModelsArray = [];
+							_.each(App.Data.statements.values, function(element){
+								App.TempData.statementsModelsArray.push(new App.Models.Statements(element));
+							});
+							 
+							
+		             },
+		             async:   false
+				});
+			},
 			initialize: function(){
 				
 				$('#controlPanelDiv').html(new App.Views.ControlPanel().render().el);
 				
 				var router = new App.Routers.MainRouter();				
 				Backbone.history.start();
+				
+				App.initData('financials/full');
+				
 				router.navigate("main", {trigger: true});
 				App.EventHandler = _.extend({}, Backbone.Events);
 				App.EventHandler.on('show_balance', function(item){
@@ -30,7 +60,11 @@
 				App.EventHandler.on('show_statements', function(item){
 					router.navigate("show_statements", {trigger: true});
 				});
-				App.EventHandler.on('show_button', function(item){
+				
+				App.EventHandler.on('show_button', function(data){
+					
+					var str = 'financials/dates/' + data.from + '/' + data.till;
+					App.initData(str);
 					router.navigate("main", {trigger: true});
 				});
 				
@@ -73,7 +107,9 @@
 			return this;
 		},
 		"show" : function(event){
-			App.EventHandler.trigger('show_button');
+			var from_str = $('#datepicker_from').val();
+			var till_str = $('#datepicker_till').val();
+			App.EventHandler.trigger('show_button', {from:from_str, till: till_str});
 		}
 	});
 	
@@ -162,16 +198,17 @@
     	},		
 		render: function(){
 			
-			if (this.model.get('showValue') != true) this.$el.addClass('miss_value');
-			if (this.model.get('bold') == true) this.$el.addClass('bold_row');
-			if (this.model.get('chart') == "") this.$el.addClass('empty_row');
 			
-			var template = "<td>" + this.model.get('chart')+ "</td>";
-			if (this.model.get('showValue') != true){
-				template += ("<td></td>");
+			if (this.model.get('chart') == ""){
+				this.$el.addClass('empty_row');
+				template += ("<td></td><td></td><td></td><td></td>");
 			} else {
-				template += ("<td>" + this.model.get('value')+ "</td>");
+				var template = "<td>" + this.model.get('chart')+ "</td>";
+				template += ("<td>" + this.model.get('valueLP')+ "</td>");
+				template += ("<td>" + this.model.get('valueGP')+ "</td>");
+				template += ("<td>" + this.model.get('valueTotal')+ "</td>");
 			}
+			
 			this.$el.html(template);			
 			
 			return this;
@@ -266,7 +303,7 @@
 			(this.collection).each(function (item) {				
 				this.$el.append(new App.Views.PartnerCapitalItem({model: item}).render().el);
 			}, this);			
-			var innerHtml = '<table class="data_table"><thead><tr><th>Chart of Account</th><th>Amount</th></tr></thead>';			
+			var innerHtml = '<table class="data_table"><thead><tr><th>Chart of Account</th><th>Amount LP</th><th>Amount GP</th><th>Total Amount</th></tr></thead>';			
 			innerHtml += this.$el.html();
 			innerHtml += '</table>';
 			this.$el.html(innerHtml);
@@ -298,7 +335,7 @@
 	App.Views.MainView = Backbone.View.extend({
 		tagName: 'div',
 		initialize: function(){
-			$.ajax({
+			/*$.ajax({
 		         url: App.Urls.baseUrl+ '/api/financials/full',
 		         success: function(data) {
 		        	 	App.Data = data;
@@ -322,7 +359,7 @@
 						
 	             },
 	             async:   false
-			});
+			});*/
 			/*$.get(App.Urls.baseUrl+ '/api/financials/full', function(data) {
 				App.Data = data;
 				App.TempData.modelsArray = [];
@@ -384,25 +421,31 @@
 			"show_statements"      : "show_statements"
 		},
 		main: function(){
+			
 			$("#tabDiv").empty().append(new App.Views.MainView().render().el);
+			new App.Views.TableView().render().swapView(null);
 			
 		},
-		show_balance: function(){			
+		show_balance: function(){
+			$('.tabs .tab-links .balance span').parent('li').addClass('active').siblings().removeClass('active');	 
 			var col = new App.Collections.BalanceCollection(App.TempData.balanceModelsArray);
 			var v1 = new App.Views.BalanceCollectionView({collection: col});
 			new App.Views.TableView().render().swapView(v1);
 		},
-		show_cash_flow: function(){			
+		show_cash_flow: function(){		
+			$('.tabs .tab-links .cash_flow span').parent('li').addClass('active').siblings().removeClass('active');
 			var col = new App.Collections.CashFlowCollection(App.TempData.cashFlowModelsArray);
 			var v1 = new App.Views.CashFlowCollectionView({collection: col});
 			new App.Views.TableView().render().swapView(v1);
 		},
 		show_partner_capital: function(){
+			$('.tabs .tab-links .partner_capital span').parent('li').addClass('active').siblings().removeClass('active');
 			var col = new App.Collections.PartnerCapitalCollection(App.TempData.partnerCapitalModelsArray);
 			var v1 = new App.Views.PartnerCapitalCollectionView({collection: col});
 			new App.Views.TableView().render().swapView(v1);
 		},
 		show_statements: function(){
+			$('.tabs .tab-links .statements span').parent('li').addClass('active').siblings().removeClass('active');
 			var col = new App.Collections.StatementsCollection(App.TempData.statementsModelsArray);
 			var v1 = new App.Views.StatementsCollectionView({collection: col});
 			new App.Views.TableView().render().swapView(v1);			

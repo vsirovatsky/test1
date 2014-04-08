@@ -14,9 +14,23 @@
 	
 	<script id="control_panel" type="text/template">
 		<div id="control_panel_div">
-			<p><input type="text" id="datepicker_from"></p>		
-			<p><input type="text" id="datepicker_till"></p>	
-			<INPUT TYPE="button" value="Show" class="show" />
+			<span><p><span class="select_fund_span">Select Fund:</span> <select>
+  				<option selected value="Diamond Head">Diamond Head</option>  
+			   </select>
+			</p> </span>
+			<table>
+				<tr>
+					<td>
+						<input type="text" id="datepicker_from" PLACEHOLDER="From">
+					</td>
+					<td>
+						<input type="text" id="datepicker_till" PLACEHOLDER="To">
+					</td>
+					<td>
+						<INPUT TYPE="button" value="Show" class="show" id="show_button"/>
+					</td>
+				</tr>
+			</table>
 		<div>		
 	</script>	
 	
@@ -24,9 +38,9 @@
 		<div id="tab_panel_div" class="tabs">			
 		<ul class="tab-links">
 			<li class="balance tab"><span>Balance</span></li>
-			<li class="cash_flow tab"><span>Cash Flow</span></li>
-			<li class="partner_capital tab"><span>Partner Capital</span></li>
 			<li class="statements tab"><span>Statements</span></li>
+			<li class="cash_flow tab"><span>Cash Flow</span></li>
+			<li class="partner_capital tab"><span>Partner Capital</span></li>			
 		</ul>
 		</div>
 				
@@ -39,12 +53,17 @@
 
 
 <body>
-
+<div id="up_side_container">
 <div id=controlPanelDiv></div>
+</div>
+
+<div id="bottom_side_container">
 
 <div id="tabDiv"></div>
 
 <div id="tableDiv"></div>
+
+</div>
 
 <script>
 (function(){
@@ -55,12 +74,12 @@
 jQuery(document).ready(function($){
 		App.Urls.baseUrl = 'http://localhost:8080'+'${pageContext.request.contextPath}';	
 		App.initialize();
-	   $("#datepicker_from").datepicker();
-	   $("#datepicker_till").datepicker();
-	   $('.tabs .tab-links span').on('click', function(e)  {	        
-	        $(this).parent('li').addClass('active').siblings().removeClass('active');	 
-	        //e.preventDefault();
-	    });
+	   $("#datepicker_from").datepicker({ dateFormat: "yy-mm-dd" });
+	   $("#datepicker_till").datepicker({ dateFormat: "yy-mm-dd" });
+	   //$('.tabs .tab-links span').on('click', function(e)  {	        
+	   //     $(this).parent('li').addClass('active').siblings().removeClass('active');	 
+	        
+	  //  });
 	});
 
 </script>
