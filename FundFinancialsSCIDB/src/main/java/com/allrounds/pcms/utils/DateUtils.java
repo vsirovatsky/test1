@@ -26,7 +26,7 @@ public class DateUtils {
 		for ( month = baseDate.getMonth(); month < d.getMonth(); month++ ) {
 			res += isLeap ? monthLengthLeap[month] : monthLength[month];
 		}
-		res += d.getDay() - baseDate.getDate();
+		res += d.getDate() - baseDate.getDate();
 		return res;
 	}
 	
