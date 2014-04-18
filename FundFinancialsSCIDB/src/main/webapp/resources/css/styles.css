@@ -78,6 +78,12 @@ font-weight: 600;
 
 
 
+.detail_link:hover{
+	cursor: pointer;
+	text-decoration: underline;
+}
+
+
 .collection_element {
 	margin-left: 30px;
 }

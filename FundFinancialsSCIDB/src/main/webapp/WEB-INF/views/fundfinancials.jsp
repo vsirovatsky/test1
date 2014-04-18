@@ -10,6 +10,13 @@
 	<script src="<c:url value="/resources/js/jquery-ui-1.10.4.custom.js" />" ></script>
 	<script src="<c:url value="/resources/js/underscore.js" />" ></script>
 	<script src="<c:url value="/resources/js/backbone.js" />" ></script>
+	<script src="<c:url value="/resources/js/lib/backbone.validation.js" />" ></script>
+	<script src="<c:url value="/resources/js/Backbone.ModalDialog.js" />" ></script>
+	
+	<script src="<c:url value="/resources/js/jshashtable-3.0.js" />" ></script>
+	<script src="<c:url value="/resources/js/jquery.numberformatter-1.2.4.min.js" />" ></script>
+	
+	
 	<script src="<c:url value="/resources/js/main.js" />" ></script>
 	
 	<script id="control_panel" type="text/template">
@@ -44,7 +51,9 @@
 		</ul>
 		</div>
 				
-	</script>	
+	</script>
+	
+	
 	
 	
 	<script></script>

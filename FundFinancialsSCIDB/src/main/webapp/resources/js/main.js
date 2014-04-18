@@ -39,6 +39,8 @@
 			},
 			initialize: function(){
 				
+				
+				
 				$('#controlPanelDiv').html(new App.Views.ControlPanel().render().el);
 				
 				var router = new App.Routers.MainRouter();				
@@ -62,8 +64,9 @@
 				});
 				
 				App.EventHandler.on('show_button', function(data){
-					
-					var str = 'financials/dates/' + data.from + '/' + data.till;
+					if (data.from == "") data.from = "blank";
+					if (data.till == "") data.till = "blank";
+					var str = 'financials/dates/' + data.from + '/' + data.till;					
 					App.initData(str);
 					router.navigate("main", {trigger: true});
 				});
@@ -91,6 +94,31 @@
 	App.Models.Statements = Backbone.Model.extend({
 		
 	});
+	
+	App.Views.ItemsDetailView = Backbone.ModalView.extend(
+			{
+			    name: "Modal Window",
+			    model: App.Models.Statements,
+			    templateHtml:
+			        "<h1>hi</h1>",
+			    initialize:
+			        function()
+			        {
+			            _.bindAll( this, "render");
+			            //this.template = _.template( this.templateHtml);
+			            this.template = "<h1>";
+			            this.template += this.model.get('chart');
+			            this.template += "</h1>";
+			        },
+			    events:
+			        {
+			            
+			        },			    
+			    render: function(){
+			            $(this.el).html( this.template);
+			            return this;
+			        }
+			});
 	
 	App.Views.ControlPanel = Backbone.View.extend({
 		tagName: 'div',
@@ -132,7 +160,7 @@
 		},
 		
 		"showBalance": function(event){
-			App.EventHandler.trigger('show_balance');
+			App.EventHandler.trigger('show_balance');			
 		},
 		"showCashFlow": function(event){
 			App.EventHandler.trigger('show_cash_flow');
@@ -149,7 +177,7 @@
 		tagName: 'tr',
 		initialize: function(){
         	
-    	},		
+    	},    		
 		render: function(){
 			
 			if (this.model.get('showValue') != true) this.$el.addClass('miss_value');
@@ -160,7 +188,8 @@
 			if (this.model.get('showValue') != true){
 				template += ("<td></td>");
 			} else {
-				template += ("<td>" + this.model.get('value')+ "</td>");
+				template += ("<td ><span data-id=\""+ this.model.cid +"\" class=\"detail_link\">" + $.formatNumber(this.model.get('value'), {format:"#,###", locale:"us"}) + "</span></td>");
+				
 			}
 			this.$el.html(template);			
 			
@@ -183,7 +212,7 @@
 			if (this.model.get('showValue') != true){
 				template += ("<td></td>");
 			} else {
-				template += ("<td>" + this.model.get('value')+ "</td>");
+				template += ("<td ><span data-id=\""+ this.model.cid +"\" class=\"detail_link\">" + $.formatNumber(this.model.get('value'), {format:"#,###", locale:"us"}) + "</span></td>");
 			}
 			this.$el.html(template);			
 			
@@ -204,9 +233,9 @@
 				template += ("<td></td><td></td><td></td><td></td>");
 			} else {
 				var template = "<td>" + this.model.get('chart')+ "</td>";
-				template += ("<td>" + this.model.get('valueLP')+ "</td>");
-				template += ("<td>" + this.model.get('valueGP')+ "</td>");
-				template += ("<td>" + this.model.get('valueTotal')+ "</td>");
+				template += ("<td ><span data-id=\""+ this.model.cid +"\" class=\"detail_link\">" + $.formatNumber(this.model.get('valueLP'), {format:"#,###", locale:"us"}) + "</span></td>");
+				template += ("<td ><span data-id=\""+ this.model.cid +"\" class=\"detail_link\">" + $.formatNumber(this.model.get('valueGP'), {format:"#,###", locale:"us"}) + "</span></td>");
+				template += ("<td ><span data-id=\""+ this.model.cid +"\" class=\"detail_link\">" + $.formatNumber(this.model.get('valueTotal'), {format:"#,###", locale:"us"}) + "</span></td>");				
 			}
 			
 			this.$el.html(template);			
@@ -230,7 +259,8 @@
 			if (this.model.get('showValue') != true){
 				template += ("<td></td>");
 			} else {
-				template += ("<td>" + this.model.get('value')+ "</td>");
+				//template += ("<td>" + this.model.get('value')+ "</td>");
+				template += ("<td ><span data-id=\""+ this.model.cid +"\" class=\"detail_link\">" + $.formatNumber(this.model.get('value'), {format:"#,###", locale:"us"}) + "</span></td>");
 			}
 			this.$el.html(template);			
 			
@@ -260,6 +290,9 @@
 		initialize: function(){
         	  
     	},
+    	events: {
+    	    "click .detail_link":  "openDetail"    	    
+    	},	
 		render: function(){
 			this.$el.html('');
 			(this.collection).each(function (item) {	
@@ -271,13 +304,22 @@
 			this.$el.html(innerHtml);
 			this.$el.addClass('collection_element');
 			return this;
-		}
+		},
+		"openDetail": function(event){
+			event.preventDefault();
+	        var id = $(event.currentTarget).data("id");	        
+	        var item = this.collection.getByCid(id);
+			showModalView(item);
+		} 
 	});	
 	
 	App.Views.CashFlowCollectionView = Backbone.View.extend({
 		tagName: 'div',
 		initialize: function(){
         	  
+    	},
+    	events: {
+    	    "click .detail_link":  "openDetail"    	    
     	},
 		render: function(){
 			this.$el.html('');						
@@ -290,13 +332,22 @@
 			this.$el.html(innerHtml);
 			this.$el.addClass('collection_element');
 			return this;
-		}
+		},
+		"openDetail": function(event){
+			event.preventDefault();
+	        var id = $(event.currentTarget).data("id");	        
+	        var item = this.collection.getByCid(id);
+			showModalView(item);
+		} 
 	});
 	
 	App.Views.PartnerCapitalCollectionView = Backbone.View.extend({
 		tagName: 'div',
 		initialize: function(){
         	  
+    	},
+    	events: {
+    	    "click .detail_link":  "openDetail"    	    
     	},
 		render: function(){
 			this.$el.html('');				
@@ -309,13 +360,22 @@
 			this.$el.html(innerHtml);
 			this.$el.addClass('collection_element');
 			return this;
-		}
+		},
+		"openDetail": function(event){
+			event.preventDefault();
+	        var id = $(event.currentTarget).data("id");	        
+	        var item = this.collection.getByCid(id);
+			showModalView(item);
+		} 
 	});
 	
 	App.Views.StatementsCollectionView = Backbone.View.extend({
 		tagName: 'div',
 		initialize: function(){
         	  
+    	},
+    	events: {
+    	    "click .detail_link":  "openDetail"    	    
     	},
 		render: function(){			
 			this.$el.html('');						
@@ -328,7 +388,13 @@
 			this.$el.html(innerHtml);
 			this.$el.addClass('collection_element');
 			return this;
-		}
+		},
+		"openDetail": function(event){
+			event.preventDefault();
+	        var id = $(event.currentTarget).data("id");	        
+	        var item = this.collection.getByCid(id);
+			showModalView(item);
+		} 
 	});	
 	
 	
@@ -448,11 +514,42 @@
 			$('.tabs .tab-links .statements span').parent('li').addClass('active').siblings().removeClass('active');
 			var col = new App.Collections.StatementsCollection(App.TempData.statementsModelsArray);
 			var v1 = new App.Views.StatementsCollectionView({collection: col});
-			new App.Views.TableView().render().swapView(v1);			
+			new App.Views.TableView().render().swapView(v1);	
+			
+			
+			
+			
 		}
 	});
 	
-	
+	function showModalView(modelIn){
+		
+		new App.Views.ItemsDetailView({model: modelIn}).render().showModal({
+		    x: $(window).width()/2 - 100,
+		    y: $(window).height()/2 - 100,
+		    fadeInDuration:150,
+		    fadeOutDuration:150,
+		    showCloseButton:true,
+		    bodyOverflowHidden:false,
+		    setFocusOnFirstFormControl:true,
+		    targetContainer: document.body,
+		    slideFromAbove: false,
+		    slideFromBelow: false,
+		    slideDistance: 150,
+		    closeImageUrl: "resources/close-modal.png",
+		    closeImageHoverUrl: "resources/close-modal-hover.png",
+		    css:
+		    {
+		        "border": "2px solid #111",
+		        "background-color": "#fff",
+		        "-webkit-box-shadow": "0px 0px 15px 4px rgba(0, 0, 0, 0.5)",
+		        "-moz-box-shadow": "0px 0px 15px 4px rgba(0, 0, 0, 0.5)",
+		        "box-shadow": "0px 0px 15px 4px rgba(0, 0, 0, 0.5)",
+		        "-webkit-border-radius": "10px",
+		        "-moz-border-radius": "10px",
+		        "border-radius": "10px"
+		    }});
+	}
 	
 	
 	
