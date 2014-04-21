@@ -9,7 +9,7 @@
 			Data: {},
 			TempData: {},
 			EventHandler: {},
-			CurrentTableView: {},
+			currentTableView: {},
 			initData: function(rest_url){
 				$.ajax({
 			         url: App.Urls.baseUrl+ '/api/' + rest_url,
@@ -48,7 +48,10 @@
 				
 				App.initData('financials/full');
 				
-				router.navigate("main", {trigger: true});
+				$("#tabDiv").empty().append(new App.Views.MainView().render().el);
+				new App.Views.TableView().render().swapView(null);
+				router.navigate("show_balance", {trigger: true});
+				
 				App.EventHandler = _.extend({}, Backbone.Events);
 				App.EventHandler.on('show_balance', function(item){
 					router.navigate("show_balance", {trigger: true});
@@ -68,7 +71,8 @@
 					if (data.till == "") data.till = "blank";
 					var str = 'financials/dates/' + data.from + '/' + data.till;					
 					App.initData(str);
-					router.navigate("main", {trigger: true});
+					App.currentTableView.rerender();
+					//router.navigate("main", {trigger: true});
 				});
 				
 			}		
@@ -400,52 +404,11 @@
 	
 	App.Views.MainView = Backbone.View.extend({
 		tagName: 'div',
-		initialize: function(){
-			/*$.ajax({
-		         url: App.Urls.baseUrl+ '/api/financials/full',
-		         success: function(data) {
-		        	 	App.Data = data;
-						App.TempData.balanceModelsArray = [];
-						_.each(App.Data.balance.values, function(element){
-							App.TempData.balanceModelsArray.push(new App.Models.Balance(element));
-						});
-						App.TempData.cashFlowModelsArray = [];
-						_.each(App.Data.cashFlow.values, function(element){
-							App.TempData.cashFlowModelsArray.push(new App.Models.CashFlow(element));
-						});
-						App.TempData.partnerCapitalModelsArray = [];
-						_.each(App.Data.partnerCapital.values, function(element){
-							App.TempData.partnerCapitalModelsArray.push(new App.Models.PartnerCapital(element));
-						});
-						App.TempData.statementsModelsArray = [];
-						_.each(App.Data.statements.values, function(element){
-							App.TempData.statementsModelsArray.push(new App.Models.Statements(element));
-						});
-						 
-						
-	             },
-	             async:   false
-			});*/
-			/*$.get(App.Urls.baseUrl+ '/api/financials/full', function(data) {
-				App.Data = data;
-				App.TempData.modelsArray = [];
-				_.each(App.Data.balance.values, function(element){
-					App.TempData.modelsArray.push(new App.Models.Balance(element));
-				});
-				 
-				
-				alert( "Load was performed." );				
-		    });	*/
+		initialize: function(){			
 		},
-		render: function(){		
-			
+		render: function(){
 			this.$el.html('');								
-			this.$el.append(new App.Views.TabPanel().render().el);
-			/*var col = new App.Collections.BalanceCollection(App.TempData.modelsArray);
-			var v1 = new App.Views.BalanceCollectionView({collection: col}).render().el;				
-			this.$el.append(v1);*/
-					
-			
+			this.$el.append(new App.Views.TabPanel().render().el);			
 			return this;
 		}
 	});
@@ -462,14 +425,23 @@
 			
 			return this;
 		},
-		swapView: function(v){
-			if (this.view != null) this.view.remove();
+		swapView: function(v){			
+			if (this.view != null) {				
+				this.view.remove();
+			}
 			this.view = v;
 			if (this.view != null){
 				$('#tableDiv').html(this.view.render().el);
 			} else {
 				$('#tableDiv').empty();
 			}
+			return this;
+		},
+		rerender: function(){
+			if (this.view != null){ 
+				$('#tableDiv').empty().html(this.view.render().el);
+			}
+			return this;
 		},
 		view: null
 	});
@@ -496,25 +468,25 @@
 			$('.tabs .tab-links .balance span').parent('li').addClass('active').siblings().removeClass('active');	 
 			var col = new App.Collections.BalanceCollection(App.TempData.balanceModelsArray);
 			var v1 = new App.Views.BalanceCollectionView({collection: col});
-			new App.Views.TableView().render().swapView(v1);
+			App.currentTableView = new App.Views.TableView().render().swapView(v1);
 		},
 		show_cash_flow: function(){		
 			$('.tabs .tab-links .cash_flow span').parent('li').addClass('active').siblings().removeClass('active');
 			var col = new App.Collections.CashFlowCollection(App.TempData.cashFlowModelsArray);
 			var v1 = new App.Views.CashFlowCollectionView({collection: col});
-			new App.Views.TableView().render().swapView(v1);
+			App.currentTableView = new App.Views.TableView().render().swapView(v1);
 		},
 		show_partner_capital: function(){
 			$('.tabs .tab-links .partner_capital span').parent('li').addClass('active').siblings().removeClass('active');
 			var col = new App.Collections.PartnerCapitalCollection(App.TempData.partnerCapitalModelsArray);
 			var v1 = new App.Views.PartnerCapitalCollectionView({collection: col});
-			new App.Views.TableView().render().swapView(v1);
+			App.currentTableView = new App.Views.TableView().render().swapView(v1);
 		},
 		show_statements: function(){
 			$('.tabs .tab-links .statements span').parent('li').addClass('active').siblings().removeClass('active');
 			var col = new App.Collections.StatementsCollection(App.TempData.statementsModelsArray);
 			var v1 = new App.Views.StatementsCollectionView({collection: col});
-			new App.Views.TableView().render().swapView(v1);	
+			App.currentTableView = new App.Views.TableView().render().swapView(v1);	
 			
 			
 			
