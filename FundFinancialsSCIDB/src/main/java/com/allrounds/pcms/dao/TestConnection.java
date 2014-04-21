@@ -7,11 +7,17 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 
+import java.util.Set;
+import java.util.TreeSet;
+
 import org.scidb.jdbc.IResultSetWrapper;
 import org.scidb.jdbc.IStatementWrapper;
+
+import com.allrounds.pcms.domain.JournalEntryItem;
 
 public class TestConnection {
 
@@ -65,8 +71,10 @@ public class TestConnection {
 	      result.add(meta.getColumnCount() + " columns: ");
 
 	      IResultSetWrapper resWrapper = res.unwrap(IResultSetWrapper.class);
+	      final Set<String> columns = new TreeSet<String>();
 	      for (int i = 1; i <= meta.getColumnCount(); i++)
 	      {
+	    	  columns.add( meta.getColumnName(i) );
 	    	  result.add(meta.getColumnName(i) + " - " + meta.getColumnTypeName(i)
 	           + " - is attribute:" + resWrapper.isColumnAttribute(i));
 	      }
@@ -75,7 +83,8 @@ public class TestConnection {
 	      
 	      while(!res.isAfterLast())
 	      {
-	    	  result.add("investor: " + res.getString("investor") + ", debit: " + res.getDouble("debit") + ", credit: " + res.getDouble("credit") + ", on " + res.getInt("jeidate"));
+	    	  //result.add("investor: " + res.getString("investor") + ", debit: " + res.getDouble("debit") + ", credit: " + res.getDouble("credit") + ", on " + res.getInt("jeidate"));
+	    	  result.add("sum: " + res.getDouble("sum"));
 	          res.next();
 	      }
 	    }
@@ -102,8 +111,72 @@ public class TestConnection {
 	public String getQuery() {
 		return this.query;
 	}
+	
+	public List<String> getAction(){
+		final List<String> result = new ArrayList<String>();
+		
+		try
+	    {
+	      Class.forName("org.scidb.jdbc.Driver");
+	    }
+	    catch (ClassNotFoundException e)
+	    {
+	    	result.add("Driver is not in the CLASSPATH -> " + e);
+	    	return result;
+	    }
+		
+		List<JournalEntryItem> newJeis = new ArrayList<JournalEntryItem>(100);
+		
+		Connection conn = null;
+		try
+	    {
+		  conn = DriverManager.getConnection("jdbc:scidb://localhost/");
+	      Statement st = conn.createStatement();
+	      
+	      ResultSet resChartsCats = st.executeQuery( "select chart_id,chart,chartcategory from test_chart_full_index");
+	      HashMap<Long, String> chartNames = new HashMap<Long, String>();
+	      HashMap<Long, String> chartCats = new HashMap<Long, String>();
+	      while ( !resChartsCats.isAfterLast() ) {
+	    	  Long index = resChartsCats.getLong("chart_id");
+	    	  chartNames.put(index, resChartsCats.getString("chart"));
+	    	  chartCats.put(index, resChartsCats.getString("chartcategory"));
+	    	  result.add("index: " + index + " " + resChartsCats.getString("chart") + " " + resChartsCats.getString("chartcategory"));
+	    	  resChartsCats.next();
+	      }
+	      
+	      
+	      ResultSet res = st.executeQuery( "select chart_id,sum(debit),sum(credit) from test2 group by chart_id" );
+	      //ResultSetMetaData meta = res.getMetaData();
 
-	public List<String> getAction() {
+	      //IResultSetWrapper resWrapper = res.unwrap(IResultSetWrapper.class);
+	      while(!res.isAfterLast())
+	      {
+	    	  Long index = res.getLong("chart_id");
+	    	  JournalEntryItem item = new JournalEntryItem();
+	    	  item.setDebit( res.getDouble("sum") );
+	    	  item.setCredit( res.getDouble("sum_1") );
+	    	  item.setChartofaccounts( chartNames.get(index) ); 
+	    	  item.setChartcategory( chartCats.get(index) );
+	    	  newJeis.add( item );
+	    	  result.add("item: " + item.getChartofaccounts() + " " + item.getChartcategory() + " " + item.getDebit() + " " + item.getCredit());
+	          res.next();
+	      }
+	      st.close();
+	    }
+	    catch (Exception e)
+	    {
+	    	result.add( e.getMessage() );
+	    } finally {
+	    	try {
+				conn.close();
+			} catch (Exception e) {
+				result.add( e.getMessage() );
+			}
+	    }
+		return result;
+	}
+
+	public List<String> getAction1() {
 		final List<String> result = new ArrayList<String>();
 		
 		try

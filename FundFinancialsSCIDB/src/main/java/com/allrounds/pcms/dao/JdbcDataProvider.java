@@ -94,4 +94,10 @@ public class JdbcDataProvider implements IDataProvider {
 		return getAllItems();
 	}
 
+	@Override
+	public List<JournalEntryItem> getDetails(DAODetailsParams params) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

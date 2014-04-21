@@ -124,4 +124,20 @@ public class MockUpDataProvider implements IDataProvider {
 		return result;
 	}
 
+	@Override
+	public List<JournalEntryItem> getDetails(DAODetailsParams params) {
+		final List<JournalEntryItem> result = new ArrayList<JournalEntryItem>();
+		Integer startDate = (params.getStartDate()!=null ) ? DateUtils.convertToInt(params.getStartDate(), Date.valueOf("2000-01-01")) : null;
+		Integer endDate = (params.getEndDate()!=null ) ? DateUtils.convertToInt(params.getEndDate(), Date.valueOf("2000-01-01")) : null;
+		for ( JournalEntryItem item : this.items ) {
+			if ( (startDate!=null) && (endDate!=null) && ( (item.getDate() < startDate)  || (item.getDate() > endDate) ) ) {
+				continue;
+			}
+			if ( params.getChart().equals(item.getChartofaccounts()) ) {
+				result.add( item );
+			}
+		}
+		return result;
+	}
+
 }

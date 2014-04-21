@@ -10,6 +10,7 @@ import java.util.TreeMap;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.allrounds.pcms.dao.DAODetailsParams;
 import com.allrounds.pcms.dao.DAOParams;
 import com.allrounds.pcms.dao.IDataProvider;
 import com.allrounds.pcms.domain.JournalEntryItem;
@@ -19,6 +20,7 @@ import com.allrounds.pcms.service.FundFinancialsBalance;
 import com.allrounds.pcms.service.FundFinancialsCashFlow;
 import com.allrounds.pcms.service.FundFinancialsPartnerCapital;
 import com.allrounds.pcms.service.FundFinancialsStatements;
+import com.allrounds.pcms.service.ItemsDetails;
 import com.allrounds.pcms.service.PcmsServiceException;
 import com.allrounds.pcms.service.PcmsServiceException.CategoryNotFoundPcmsServiceException;
 import com.allrounds.pcms.service.support.IValueFiltersFactory;
@@ -326,7 +328,7 @@ public class FundFinancialsFactory implements IFundFinancialsFactory {
 			} else if ( JeiUtils.isRealizedGains(jei.getChartofaccounts()) ) {
 				realizedGainPC.addValueLP( jei.getCredit() - jei.getDebit() );
 			} else {
-				contributionsPC.addValueLP( jei.getCredit() - jei.getDebit() );
+				contributionsPC.addValueLP( jei.getDebit() - jei.getCredit() );
 			}
 		}
 		
@@ -394,8 +396,9 @@ public class FundFinancialsFactory implements IFundFinancialsFactory {
 		final Map<String,FundFinancialsCashFlow.ValuePair> additionalFlows = new HashMap<String, FundFinancialsCashFlow.ValuePair>();
 		
 		for ( JournalEntryItem jei : items ) {
-			if ( jei.getChartofaccounts() == "Cash" ) continue;
-			double am = jei.getCredit() - jei.getDebit();
+			
+			if ( jei.getChartcategory() == "Cash" ) continue;
+			double am = (jei.getCategory() == CATEGORY.ASSET) ? ( jei.getDebit() - jei.getCredit() ) : ( jei.getCredit() - jei.getDebit() );
 			 //TODO: Date < date implement
 			
 			if ( jei.getChartofaccounts() == "Partner Capital" ) {
@@ -603,5 +606,32 @@ public class FundFinancialsFactory implements IFundFinancialsFactory {
 		values.add( endCF );
 		
 		return ffcf;
+	}
+
+	@Override
+	public ItemsDetails createDetails(DAODetailsParams params)
+			throws PcmsServiceException {
+		final List<JournalEntryItem> items = getDataProvider().getDetails( params );
+		final ItemsDetails result = new ItemsDetails();
+		
+		//TODO: implement
+		int pageSize = 10;
+		int currPage = 1;
+		int totalPages = ( (items.size()-1) / pageSize ) + 1;
+		if ( totalPages == 0 ) totalPages = 1;
+		int page = params.getPage();
+		if ( page > totalPages ) page = totalPages;
+		if ( page < 1 ) page = 1;
+		int start = ( currPage - 1 ) * pageSize;
+		int end = Math.min( currPage * pageSize, items.size() );
+		for ( int i = start; i < end; i++ ) {
+			result.addItem( items.get(i) );
+		}
+		result.setStartDate(params.getStartDate());
+		result.setEndDate(params.getEndDate());
+		result.setTotalPages(totalPages);
+		result.setPage(page);
+		
+		return result;
 	}
 }

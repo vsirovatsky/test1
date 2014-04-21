@@ -28,4 +28,8 @@ public class DAOParams {
 	public void setEndDate(Date endDate) {
 		this.endDate = endDate;
 	}
+
+	public boolean isDatesSet() {
+		return this.startDate!=null && this.endDate != null;
+	}
 }
