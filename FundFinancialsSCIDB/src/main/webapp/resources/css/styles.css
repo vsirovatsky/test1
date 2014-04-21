@@ -83,6 +83,10 @@ font-weight: 600;
 	text-decoration: underline;
 }
 
+#modalContainer{
+    position: fixed !important; 
+ }
+
 
 .collection_element {
 	margin-left: 30px;
