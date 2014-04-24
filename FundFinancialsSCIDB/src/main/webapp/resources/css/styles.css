@@ -87,6 +87,33 @@ font-weight: 600;
     position: fixed !important; 
  }
 
+.modal-table{
+    width: 100%;
+    border-collapse: collapse;
+    border-spacing: 0;
+    margin-bottom: 5px;
+}
+
+.modal-table .text{
+    text-align: left;
+}
+
+.modal-table .number{
+    text-align: right;
+}
+
+.modal-table .date{
+    text-align: center;
+}
+
+.modal-table tr:nth-child(even) {
+    background-color: rgb(201, 201, 201);
+}
+
+.modal-table tr:first-child {
+    border-bottom: 1px solid grey;
+}
+
 
 .collection_element {
 	margin-left: 30px;

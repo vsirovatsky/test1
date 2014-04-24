@@ -43,6 +43,7 @@
 				
 				
 				$('#controlPanelDiv').html(new App.Views.ControlPanel().render().el);
+				$("#tabDiv").empty().append(new App.Views.MainView().render().el);
 				
 				var router = new App.Routers.MainRouter();				
 				Backbone.history.start();
@@ -103,10 +104,23 @@
 		tagName: 'div',		   	
 		render: function(){
 			var innerHtml = '<table class="modal-table">';
+			innerHtml += '<tr>';
+			innerHtml += '<th class="text">Chart of Accounts</th>';
+			innerHtml += '<th class="text">Category</th>';
+			innerHtml += '<th class="number">Debit</th>';
+			innerHtml += '<th class="number">Credit</th>';
+			innerHtml += '<th class="date">Date</th>';
+			innerHtml += '</tr>'; 
 			
 			if (App.DetailData != null){
 				for (var i = 0; i < App.DetailData.items.length; i++){
-					innerHtml += '<tr><td>' + JSON.stringify(App.DetailData.items[i]) + '</td></tr>'; 
+					innerHtml += '<tr>';
+					innerHtml += '<td class="text">' + App.DetailData.items[i].chartofaccounts + '</td>';
+					innerHtml += '<td class="text">' + App.DetailData.items[i].chartcategory + '</td>';
+					innerHtml += '<td class="number">' + formatStringWithZero(App.DetailData.items[i].debit)  + '</td>';
+					innerHtml += '<td class="number">' + formatStringWithZero(App.DetailData.items[i].credit)  + '</td>';		
+					innerHtml += '<td class="date">' + App.DetailData.items[i].date + '</td>';
+					innerHtml += '</tr>'; 
 				}
 			}
 			innerHtml += '</table>';
@@ -149,11 +163,11 @@
 			    	this.currentTableView = new App.Views.ItemsDetailTableView();
 			    	
 			    	this.template = "<h1>";
-		            this.template += this.model.get('chart');
+		            this.template += "Chart Of Account: " + this.model.get('chart');
 		            this.template += "</h1>";
-		            this.template += '<div id="modalTableContainer"> </div>';	            
+		            this.template = '<div id="modalTableContainer"> </div>';	            
 		            
-		            this.template += '<INPUT TYPE="button" value="Show" class="show" id="modal_button"/>';
+		            //this.template += '<INPUT TYPE="button" value="Show" class="show" id="modal_button"/>';
 			        $(this.el).html( this.template);
 			        this.currentTableView.setElement(this.$('#modalTableContainer')).render();
 			        return this;
@@ -204,8 +218,8 @@
 			    	$.ajax({
 				         url: App.Urls.baseUrl+ '/api/' + rest_url,
 				         success: function(data) {				        	 	
-				        	alert(this.url);	
-							alert(JSON.stringify(data));
+				        	//alert(this.url);	
+							//alert(JSON.stringify(data));
 							App.DetailData = data;
 								
 			             },
@@ -282,7 +296,7 @@
 			if (this.model.get('showValue') != true){
 				template += ("<td></td>");
 			} else {
-				template += ("<td ><span data-id=\""+ this.model.cid +"\" class=\"detail_link\">" + $.formatNumber(this.model.get('value'), {format:"#,###", locale:"us"}) + "</span></td>");
+				template += ("<td ><span data-id=\""+ this.model.cid +"\" class=\"detail_link\">" + formatStringWithZero(this.model.get('value')) + "</span></td>");
 				
 			}
 			this.$el.html(template);			
@@ -306,7 +320,7 @@
 			if (this.model.get('showValue') != true){
 				template += ("<td></td>");
 			} else {
-				template += ("<td ><span data-id=\""+ this.model.cid +"\" class=\"detail_link\">" + $.formatNumber(this.model.get('value'), {format:"#,###", locale:"us"}) + "</span></td>");
+				template += ("<td ><span data-id=\""+ this.model.cid +"\" class=\"detail_link\">" + formatStringWithZero(this.model.get('value')) + "</span></td>");
 			}
 			this.$el.html(template);			
 			
@@ -327,9 +341,9 @@
 				template += ("<td></td><td></td><td></td><td></td>");
 			} else {
 				var template = "<td>" + this.model.get('chart')+ "</td>";
-				template += ("<td ><span data-id=\""+ this.model.cid +"\" class=\"detail_link\">" + $.formatNumber(this.model.get('valueLP'), {format:"#,###", locale:"us"}) + "</span></td>");
-				template += ("<td ><span data-id=\""+ this.model.cid +"\" class=\"detail_link\">" + $.formatNumber(this.model.get('valueGP'), {format:"#,###", locale:"us"}) + "</span></td>");
-				template += ("<td ><span data-id=\""+ this.model.cid +"\" class=\"detail_link\">" + $.formatNumber(this.model.get('valueTotal'), {format:"#,###", locale:"us"}) + "</span></td>");				
+				template += ("<td ><span data-id=\""+ this.model.cid +"\" class=\"detail_link\">" + formatStringWithZero(this.model.get('valueLP')) + "</span></td>");
+				template += ("<td ><span data-id=\""+ this.model.cid +"\" class=\"detail_link\">" + formatStringWithZero(this.model.get('valueGP')) + "</span></td>");
+				template += ("<td ><span data-id=\""+ this.model.cid +"\" class=\"detail_link\">" + formatStringWithZero(this.model.get('valueTotal')) + "</span></td>");				
 			}
 			
 			this.$el.html(template);			
@@ -354,7 +368,7 @@
 				template += ("<td></td>");
 			} else {
 				//template += ("<td>" + this.model.get('value')+ "</td>");
-				template += ("<td ><span data-id=\""+ this.model.cid +"\" class=\"detail_link\">" + $.formatNumber(this.model.get('value'), {format:"#,###", locale:"us"}) + "</span></td>");
+				template += ("<td ><span data-id=\""+ this.model.cid +"\" class=\"detail_link\">" + formatStringWithZero(this.model.get('value')) + "</span></td>");
 			}
 			this.$el.html(template);			
 			
@@ -588,6 +602,20 @@
 		}
 	});
 	
+	function formatStringWithZero(value){
+		
+		try{			
+			var v1 = parseFloat(value);
+		    if (Math.abs(v1) < 1){
+		    	return "0";
+		    } else {
+		    	return $.formatNumber(v1, {format:"#,###", locale:"us"});
+		    }			
+		} catch(e) {
+			return $.formatNumber(value, {format:"#,###", locale:"us"});			
+		} 
+	};
+	
 	function showModalView(modelIn){
 		
 		new App.Views.ItemsDetailView({model: modelIn}).render().showModal({
@@ -616,7 +644,7 @@
 		        "-moz-border-radius": "10px",
 		        "border-radius": "10px"
 		    }});
-	}
+	};
 	
 	
 	
