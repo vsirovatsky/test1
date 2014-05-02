@@ -62,13 +62,18 @@ public class BalanceSheetController {
 	
 	@RequestMapping(method = RequestMethod.POST, params = { "testaction" } )
 	public String sumbitTestAction(@RequestParam("testquery") String testquery, @RequestParam String testaction, Model model) {
-		
-		final TestConnection tc = new TestConnection();
-		tc.setQuery( testquery );
-		final List<String> messageslist = tc.getAction();
-		model.addAttribute("testquery", tc.getQuery() );
-		model.addAttribute("messageslist", messageslist );
-		
+		try {
+			final TestConnection tc = new TestConnection();
+			tc.setQuery( testquery );
+			final List<String> messageslist = tc.getAction();
+			model.addAttribute("testquery", tc.getQuery() );
+			model.addAttribute("messageslist", messageslist );
+		} catch ( Exception ex ) {
+			List<String> messageslist = new ArrayList<String>();
+			messageslist.add( ex.getMessage() );
+			model.addAttribute("testquery", "" );
+			model.addAttribute("messageslist", messageslist );
+		}
 		return "balancesheet";
 	}
 	

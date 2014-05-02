@@ -1,7 +1,9 @@
 package com.allrounds.pcms.dao;
 
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
@@ -17,7 +19,9 @@ import java.util.TreeSet;
 import org.scidb.jdbc.IResultSetWrapper;
 import org.scidb.jdbc.IStatementWrapper;
 
+import com.allrounds.pcms.dao.DAODetailsParams.TAB_NAME;
 import com.allrounds.pcms.domain.JournalEntryItem;
+import com.allrounds.pcms.utils.DateUtils;
 
 public class TestConnection {
 
@@ -114,7 +118,13 @@ public class TestConnection {
 	
 	public List<String> getAction(){
 		final List<String> result = new ArrayList<String>();
-		
+		DAODetailsParams params = new DAODetailsParams();
+		params.setStartDate(null);
+		params.setEndDate(null);
+		params.setPage(1);
+		params.setTab(TAB_NAME.BALANCE);
+		params.setChart("Nitronex Corporation");
+		result.add( "Running" );
 		try
 	    {
 	      Class.forName("org.scidb.jdbc.Driver");
@@ -134,45 +144,81 @@ public class TestConnection {
 	      Statement st = conn.createStatement();
 	      
 	      ResultSet resChartsCats = st.executeQuery( "select chart_id,chart,chartcategory from test_chart_full_index");
-	      HashMap<Long, String> chartNames = new HashMap<Long, String>();
+	      HashMap<String, Long> chartIndexes = new HashMap<String, Long>();
 	      HashMap<Long, String> chartCats = new HashMap<Long, String>();
 	      while ( !resChartsCats.isAfterLast() ) {
 	    	  Long index = resChartsCats.getLong("chart_id");
-	    	  chartNames.put(index, resChartsCats.getString("chart"));
+	    	  chartIndexes.put(resChartsCats.getString("chart"), index);
 	    	  chartCats.put(index, resChartsCats.getString("chartcategory"));
-	    	  result.add("index: " + index + " " + resChartsCats.getString("chart") + " " + resChartsCats.getString("chartcategory"));
 	    	  resChartsCats.next();
 	      }
+	      result.add( "chartIndexes: " + chartIndexes.size() );
+	      result.add( "chartCats: " + chartCats.size() );
+	      for ( String key : chartIndexes.keySet() ) {
+	    	  result.add( key + " : " + chartIndexes.get(key) );
+	      }
 	      
+	      ResultSet res = null;
+	      Long id = chartIndexes.get( params.getChart() );
+	      result.add( "params.getChart(): " + params.getChart() );
+	      result.add( "id: " + id );
+	      if ( id != null ) {
+		      if ( params.isDatesSet() ) {
+		    	  int startDate = DateUtils.convertToInt(params.getStartDate(), Date.valueOf("2000-01-01"));
+		  		  int endDate = DateUtils.convertToInt(params.getEndDate(), Date.valueOf("2000-01-01"));
+		  		  StringBuffer sb = new StringBuffer();
+		  		  sb.append( "select credit, debit, jeid, jeidate from unpack(between(test2," );
+		  		  sb.append( startDate );
+		  		  sb.append( ',' );
+		  		  sb.append( id );
+			      sb.append( ",null," );
+			      sb.append( endDate );
+			      sb.append( ',' );
+			      sb.append( id );
+			      sb.append( ",null), jeidate)" );
+			      String sql = sb.toString();
+			      result.add( "sql: " + sql );
+			      res = st.executeQuery(sql);
+		      } else {
+		    	  StringBuffer sb = new StringBuffer();
+		  		  sb.append( "select credit, debit, jeid, jeidate from unpack(between(test2,null," );
+		  		  sb.append( id );
+			      sb.append( ",null,null," );
+			      sb.append( id );
+			      sb.append( ",null), jeidate)" );
+			      String sql = sb.toString();
+			      result.add( "sql: " + sql );
+			      res = st.executeQuery(sql);
+		      }
+	      }
 	      
-	      ResultSet res = st.executeQuery( "select chart_id,sum(debit),sum(credit) from test2 group by chart_id" );
-	      //ResultSetMetaData meta = res.getMetaData();
-
-	      //IResultSetWrapper resWrapper = res.unwrap(IResultSetWrapper.class);
-	      while(!res.isAfterLast())
-	      {
-	    	  Long index = res.getLong("chart_id");
+	      while( (res!=null) && !res.isAfterLast() ) {
 	    	  JournalEntryItem item = new JournalEntryItem();
-	    	  item.setDebit( res.getDouble("sum") );
-	    	  item.setCredit( res.getDouble("sum_1") );
-	    	  item.setChartofaccounts( chartNames.get(index) ); 
-	    	  item.setChartcategory( chartCats.get(index) );
+	    	  item.setCredit( res.getDouble("credit") );
+	    	  item.setDebit( res.getDouble("debit") );
+	    	  item.setJeId( res.getString("jeid") );
+	    	  item.setChartofaccounts( params.getChart() ); 
+	    	  item.setChartcategory( chartCats.get(id) );
+	    	  item.setDate((int)res.getLong("jeidate"));
 	    	  newJeis.add( item );
-	    	  result.add("item: " + item.getChartofaccounts() + " " + item.getChartcategory() + " " + item.getDebit() + " " + item.getCredit());
 	          res.next();
+	          result.add( item.getCredit() + " : " + item.getDebit() + " : " + item.getDate());
 	      }
 	      st.close();
 	    }
-	    catch (Exception e)
+	    catch (SQLException e)
 	    {
-	    	result.add( e.getMessage() );
+	    	result.add(e.getMessage());
+	    	e.printStackTrace();
 	    } finally {
 	    	try {
 				conn.close();
-			} catch (Exception e) {
-				result.add( e.getMessage() );
+			} catch (SQLException e) {
+				result.add(e.getMessage());
+				e.printStackTrace();
 			}
 	    }
+		
 		return result;
 	}
 

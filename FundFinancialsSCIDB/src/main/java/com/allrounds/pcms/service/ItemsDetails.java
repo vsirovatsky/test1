@@ -15,7 +15,7 @@ public class ItemsDetails {
 		
 		private double credit;
 		
-		private Date date;
+		private String date;
 
 		private String chartofaccounts;
 		
@@ -37,11 +37,11 @@ public class ItemsDetails {
 			this.credit = credit;
 		}
 
-		public Date getDate() {
+		public String getDate() {
 			return date;
 		}
 
-		public void setDate(Date date) {
+		public void setDate(String date) {
 			this.date = date;
 		}
 
@@ -99,7 +99,8 @@ public class ItemsDetails {
 		d.setChartofaccounts(item.getChartofaccounts());
 		d.setCredit(item.getCredit());
 		d.setDebit(item.getDebit());
-		d.setDate( DateUtils.convertToDate(item.getDate(), java.sql.Date.valueOf("2000-01-01") ) );
+		Date obtained = DateUtils.convertToDate(item.getDate(), java.sql.Date.valueOf("2000-01-01") );
+		d.setDate( "" + obtained.getMonth() + '-' + obtained.getDate() + '-' + obtained.getYear() );
 		this.items.add( d );
 	}
 

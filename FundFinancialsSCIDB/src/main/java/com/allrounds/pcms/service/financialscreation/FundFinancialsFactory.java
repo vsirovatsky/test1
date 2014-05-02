@@ -101,7 +101,7 @@ public class FundFinancialsFactory implements IFundFinancialsFactory {
 					p.addValue( jei.getDebit() - jei.getCredit() );
 					break;
 				case LIABILITY:
-					subMap = valuesLiabilities.get(jei.getChartofaccounts());
+					subMap = valuesLiabilities.get(jei.getChartcategory());
 					if ( subMap == null ) {
 						subMap = new HashMap<String, FundFinancialsBalance.ValuePair>();
 						valuesLiabilities.put(jei.getChartcategory(), subMap);
@@ -114,7 +114,7 @@ public class FundFinancialsFactory implements IFundFinancialsFactory {
 					p.addValue( jei.getCredit() - jei.getDebit() );
 					break;
 				case EQUITY:
-					subMap = valuesEquities.get(jei.getChartofaccounts());
+					subMap = valuesEquities.get(jei.getChartcategory());
 					if ( subMap == null ) {
 						subMap = new HashMap<String, FundFinancialsBalance.ValuePair>();
 						valuesEquities.put(jei.getChartcategory(), subMap);
@@ -322,13 +322,13 @@ public class FundFinancialsFactory implements IFundFinancialsFactory {
 			if ( JeiUtils.isIncome(jei.getChartcategory()) ) {
 				netIncomePC.addValueLP( jei.getCredit() - jei.getDebit() );
 			} else if ( JeiUtils.isExpense(jei.getChartcategory()) ) {
-				expensePC.addValueLP( jei.getDebit() - jei.getCredit() );
+				expensePC.addValueLP( jei.getCredit() - jei.getDebit() );
 			} else if ( JeiUtils.isUnrealizedGains(jei.getChartofaccounts()) ) {
 				unrealizedGainPC.addValueLP( jei.getCredit() - jei.getDebit() );
 			} else if ( JeiUtils.isRealizedGains(jei.getChartofaccounts()) ) {
 				realizedGainPC.addValueLP( jei.getCredit() - jei.getDebit() );
 			} else {
-				contributionsPC.addValueLP( jei.getDebit() - jei.getCredit() );
+				contributionsPC.addValueLP( jei.getCredit() - jei.getDebit() );
 			}
 		}
 		
@@ -616,17 +616,17 @@ public class FundFinancialsFactory implements IFundFinancialsFactory {
 		
 		//TODO: implement
 		int pageSize = 10;
-		int currPage = 1;
 		int totalPages = ( (items.size()-1) / pageSize ) + 1;
 		if ( totalPages == 0 ) totalPages = 1;
 		int page = params.getPage();
 		if ( page > totalPages ) page = totalPages;
 		if ( page < 1 ) page = 1;
-		int start = ( currPage - 1 ) * pageSize;
-		int end = Math.min( currPage * pageSize, items.size() );
+		int start = ( page - 1 ) * pageSize;
+		int end = Math.min( page * pageSize, items.size() );
 		for ( int i = start; i < end; i++ ) {
 			result.addItem( items.get(i) );
 		}
+  	
 		result.setStartDate(params.getStartDate());
 		result.setEndDate(params.getEndDate());
 		result.setTotalPages(totalPages);

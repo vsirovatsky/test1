@@ -35,19 +35,19 @@ public class JeiUtils {
     }
    
     public static boolean isIncome( String catName ){
-    	return ( (catName == "Income") || (catName == "Other Income") ); 
+    	return ( "Income".equals(catName) || "Other Income".equals(catName) ); 
     }
    
     public static boolean isExpense( String catName ){
-    	return ( (catName == "Expense") || (catName == "Other Expense") ); 
+    	return ( "Expense".equals(catName) || "Other Expense".equals(catName) ); 
     }
     
     public static boolean isUnrealizedGains( String chartName ) {
-    	return ( chartName == "Unrealized Gains" );
+    	return "Unrealized Gains".equals(chartName);
     }
 
     public static boolean isRealizedGains( String chartName ) {
-    	return ( chartName == "Realized Gains" );
+    	return "Realized Gains".equals(chartName);
     }
     
 }

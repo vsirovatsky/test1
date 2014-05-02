@@ -3,6 +3,7 @@ package com.allrounds.pcms.dao;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -128,12 +129,30 @@ public class JdbcAggregatedDataProvider implements IDataProvider {
 	      ResultSet res = null;
 	      Long id = chartIndexes.get( params.getChart() );
 	      if ( id != null ) {
-		      if ( params.isDatesSet() ) {
+	    	  if ( params.isDatesSet() ) {
 		    	  int startDate = DateUtils.convertToInt(params.getStartDate(), Date.valueOf("2000-01-01"));
 		  		  int endDate = DateUtils.convertToInt(params.getEndDate(), Date.valueOf("2000-01-01"));
-		  		  res = st.executeQuery( "select * from test2 WHERE (chart_id = " + id + ") AND (jeidate >= " + startDate + ") AND (jeidate <= " + endDate + ")" );
+		  		  StringBuffer sb = new StringBuffer();
+		  		  sb.append( "select credit, debit, jeid, jeidate from unpack(between(test2," );
+		  		  sb.append( startDate );
+		  		  sb.append( ',' );
+		  		  sb.append( id );
+			      sb.append( ",null," );
+			      sb.append( endDate );
+			      sb.append( ',' );
+			      sb.append( id );
+			      sb.append( ",null), jeidate)" );
+			      String sql = sb.toString();
+			      res = st.executeQuery(sql);
 		      } else {
-		    	  res = st.executeQuery( "select * from test2 WHERE chart_id = " + id );
+		    	  StringBuffer sb = new StringBuffer();
+		  		  sb.append( "select credit, debit, jeid, jeidate from unpack(between(test2,null," );
+		  		  sb.append( id );
+			      sb.append( ",null,null," );
+			      sb.append( id );
+			      sb.append( ",null), jeidate)" );
+			      String sql = sb.toString();
+			      res = st.executeQuery(sql);
 		      }
 	      }
 	      
@@ -145,15 +164,24 @@ public class JdbcAggregatedDataProvider implements IDataProvider {
 	    	  item.setJeId( res.getString("jeid") );
 	    	  item.setChartofaccounts( params.getChart() ); 
 	    	  item.setChartcategory( chartCats.get(id) );
-	    	  item.setDate(res.getInt("jeidate"));
+	    	  item.setDate((int)res.getLong("jeidate"));
 	    	  newJeis.add( item );
 	    	 //result.add("investor: " + res.getString("investor") + ", debit: " + res.getDouble("debit") + ", credit: " + res.getDouble("credit") + ", on " + res.getInt("jeidate"));
 	          res.next();
 	      }
 	      st.close();
 	    }
-	    catch (SQLException e)
+	    catch (Exception e)
 	    {
+	    	JournalEntryItem item = new JournalEntryItem();
+	    	  item.setCredit( 1 );
+	    	  item.setDebit( 1 );
+	    	  //item.setInvestor( res.getString("investor") );
+	    	  item.setJeId( "1" );
+	    	  item.setChartofaccounts( e.getMessage() ); 
+	    	  item.setChartcategory( e.getMessage() );
+	    	  item.setDate( 1 );
+	    	  newJeis.add( item );
 	    	e.printStackTrace();
 	    } finally {
 	    	try {
