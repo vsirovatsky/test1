@@ -8,9 +8,10 @@
 			Urls: {},
 			Data: {},
 			TempData: {},
-			DetailData: {data: [{id:1}, {id: 2}]},
+			DetailData: {},
 			EventHandler: {},
 			currentRouteLink: null,
+			currentModalView: {},
 			initData: function(rest_url){
 				$.ajax({
 			         url: App.Urls.baseUrl+ '/api/' + rest_url,
@@ -76,6 +77,20 @@
 					router.navigate(App.currentRouteLink, {trigger: true});
 				});
 				
+				App.EventHandler.on('pagination_item', function(data){
+					if (data.item == "first"){
+						App.currentModalView.changePage(1);
+					} else if (data.item == "last"){
+						if (App.DetailData.totalPages != null){
+							App.currentModalView.changePage(App.DetailData.totalPages);
+						}
+					} else if (data.item == "prev"){
+						App.currentModalView.changePage(App.DetailData.page - 1);
+					} else if (data.item == "next"){
+						App.currentModalView.changePage(App.DetailData.page + 1);
+					}
+				});
+				
 			}		
 			
 			
@@ -101,7 +116,25 @@
 	});
 	
 	App.Views.ItemsDetailTableView = Backbone.View.extend({
-		tagName: 'div',		   	
+		tagName: 'div',	
+		events: {
+    		"click .paginator_item_first" : "paginator_item_first",	
+    		"click .paginator_item_last" : "paginator_item_last",
+    		"click .paginator_item_prev" : "paginator_item_prev",
+    		"click .paginator_item_next" : "paginator_item_next",
+		},	
+		"paginator_item_first": function(){
+			App.EventHandler.trigger('pagination_item', {item: "first"});				
+		},	
+		"paginator_item_last": function(){
+			App.EventHandler.trigger('pagination_item', {item: "last"});					
+		},	
+		"paginator_item_prev": function(){
+			App.EventHandler.trigger('pagination_item', {item: "prev"});					
+		},	
+		"paginator_item_next": function(){
+			App.EventHandler.trigger('pagination_item', {item: "next"});					
+		},	
 		render: function(){
 			var innerHtml = '<table class="modal-table">';
 			innerHtml += '<tr>';
@@ -124,12 +157,56 @@
 				}
 			}
 			innerHtml += '</table>';
+			
+			
+			if (App.DetailData != null){
+				
+				innerHtml += '<div class="pagination">';
+				if (App.DetailData.page != 1){
+					innerHtml += '<span style=""> ';
+					innerHtml += '<span class="paginator_item_first link"> First Page </span> ';
+					innerHtml += '<span> | </span> ';
+					innerHtml += '<span class="paginator_item_prev link"> Prev </span> ';
+					innerHtml += '<span> | </span> ';
+					innerHtml += '</span> ';
+				} else {
+					innerHtml += '<span style="visibility: hidden;"> ';
+					innerHtml += '<span class="paginator_item_first link"> First Page </span> ';
+					innerHtml += '<span> | </span> ';
+					innerHtml += '<span class="paginator_item_prev link"> Prev </span> ';
+					innerHtml += '<span> | </span> ';
+					innerHtml += '</span> ';
+				}
+				
+				innerHtml += '<span> Page '+App.DetailData.page+' of '+App.DetailData.totalPages+'  </span> ';
+				
+				
+				if (App.DetailData.page != App.DetailData.totalPages){
+					innerHtml += '<span style=""> ';
+					innerHtml += '<span> | </span> ';
+					innerHtml += '<span class="paginator_item_next link"> Next </span> ';
+					innerHtml += '<span> | </span> ';
+					innerHtml += '<span class="paginator_item_last link"> Last Page </span>';
+					innerHtml += '</span> ';
+				} else {
+					innerHtml += '<span style="visibil	ity: hidden;"> ';
+					innerHtml += '<span> | </span> ';
+					innerHtml += '<span class="paginator_item_next link"> Next </span> ';
+					innerHtml += '<span> | </span> ';
+					innerHtml += '<span class="paginator_item_last link"> Last Page </span>';
+					innerHtml += '</span> ';
+				}
+				innerHtml += '</div>';
+			}
+			
 			this.$el.html(innerHtml);			
 			
 			return this;
 		}
 		
 	});
+	
+	
 		
 	
 	App.Views.ItemsDetailView = Backbone.ModalView.extend(
@@ -156,28 +233,35 @@
 					this.initData(1);
 					this.swapViews();					
 				},	
+				changePage: function(page){
+					this.initData(page);
+					this.swapViews();	
+				},
 			    render: function(){
 			    	
 			    	
 			    	if (this.currentTableView != null) this.currentTableView.remove();		            
 			    	this.currentTableView = new App.Views.ItemsDetailTableView();
 			    	
-			    	this.template = "<h1>";
-		            this.template += "Chart Of Account: " + this.model.get('chart');
-		            this.template += "</h1>";
+			    	
+			    	
 		            this.template = '<div id="modalTableContainer"> </div>';	            
-		            
+		            //this.template = '<div id="paginationDiv"> </div>';
 		            //this.template += '<INPUT TYPE="button" value="Show" class="show" id="modal_button"/>';
 			        $(this.el).html( this.template);
 			        this.currentTableView.setElement(this.$('#modalTableContainer')).render();
+			        
 			        return this;
 			    },
-			    currentTableView: null,  
+			    currentTableView: null,			    
 			    swapViews: function(){
 			    	if (this.currentTableView != null) this.currentTableView.remove();		            
 			    	this.currentTableView = new App.Views.ItemsDetailTableView();
 			    	
-			    	this.currentTableView.setElement(this.$('#modalTableContainer')).render();
+		            this.template = '<div id="modalTableContainer"> </div>';	            
+		            
+			        $(this.el).html( this.template);
+			        this.currentTableView.setElement(this.$('#modalTableContainer')).render();
 		            
 			    },			    
 			    getInfo: function(){
@@ -618,7 +702,7 @@
 	
 	function showModalView(modelIn){
 		
-		new App.Views.ItemsDetailView({model: modelIn}).render().showModal({
+		App.currentModalView = new App.Views.ItemsDetailView({model: modelIn}).render().showModal({
 		    x: 200,
 		    y: 200,
 		    fadeInDuration:150,

@@ -114,6 +114,18 @@ font-weight: 600;
     border-bottom: 1px solid grey;
 }
 
+.pagination{
+	width: 300px;
+	margin: 5 auto;
+}
+
+.link:hover{
+    cursor: pointer;
+    text-decoration: underline;
+    font-weight: bold;
+	color: #2136A0;
+}
+
 
 .collection_element {
 	margin-left: 30px;
